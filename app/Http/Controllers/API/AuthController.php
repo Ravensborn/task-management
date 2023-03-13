@@ -25,16 +25,20 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid Credentials.',
+                'message' => 'invalid Credentials.',
             ], 401);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Token successfully created.',
+            'message' => 'token successfully created.',
             'data' => [
                 'token' => $user->createToken(request()->device_name)->plainTextToken,
-                'user' => $user
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email
+                ]
             ]
         ], 200);
 
