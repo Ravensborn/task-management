@@ -24,6 +24,7 @@ Postman Collection
 Notes:
 - The application is live at <a href="task-management.rozhapp.com">glitter.rozhapp.com</a>.
 - The postman collection comes with an environment file, make sure that one is selected, because when you generate a token it will automatically save it in the environment for you, then you can either navigate to dashboard folder or user folder to start making requests to the application.
+- The api response format follows the <a href="https://github.com/omniti-labs/jsend">JSend</a> standards, I found that the most suitable for this project.
 - The dashboard group serves the purpose of managing all the models in the application, In this section the restrictions of the guideline have not been applied to make it to manageable by admins.
 - The user group servers the purpose of users ability to see and manage only their tasks, the rules in the guidelines are applied here.
 - The first user is `yad@example.com` with password of `password`, it have the permissions of `product owner`.
