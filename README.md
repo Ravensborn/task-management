@@ -8,6 +8,7 @@ And the user group is for the end user.
 The APIs created in this application are based on the requirements that are found in the root directory of the project in the format of PDF, this application strictly follows that guideline and any necessary function that is missing, It's because it did not exist in the guideline.
 
 Installation (without docker):
+- Make sure you are using the latest version of composer.
 - Clone the repo at https://github.com/Ravensborn/task-management.
 - Install dependencies via composer: `composer install`
 - Duplicate and rename `env.local` to `.env` and edit as necessary.
