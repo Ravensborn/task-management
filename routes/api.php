@@ -33,6 +33,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('roles', RolesController::class)->only('index');
 
+        Route::post('users/{user}/update-role', [UserController::class, 'updateRole']);
         Route::post('users/import/users-csv', [UserController::class, 'importUsers']);
         Route::get('users/import/users-csv-progress', [UserController::class, 'getImportProgress']);
 

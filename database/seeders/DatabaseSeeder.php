@@ -41,8 +41,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'yad@example.com',
         ]);
 
-//        $yad->assignRole('product owner');
-        $yad->assignRole('developer');
+        $yad->assignRole('product owner');
+//        $yad->assignRole('developer');
 //        $yad->assignRole('tester');
 
         Board::factory()->create([

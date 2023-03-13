@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ImportUsersJob;
 use App\Models\User;
 use Bus;
+use Spatie\Permission\Models\Role;
 use Str;
 
 class UserController extends Controller
@@ -42,6 +43,16 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->name,
+                'roles_and_permissions' => [
+                    'roles' => $user->getRoleNames(),
+                    'permissions' => $user->getAllPermissions()->map(function($permission) {
+                        return [
+                            'id' => $permission->id,
+                            'name' => $permission->name
+                        ];
+                    }),
+                ],
+
             ];
         });
 
@@ -102,7 +113,16 @@ class UserController extends Controller
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
-                        'email' => $user->email
+                        'email' => $user->email,
+                        'roles_and_permissions' => [
+                            'roles' => $user->getRoleNames(),
+                            'permissions' => $user->getAllPermissions()->map(function($permission) {
+                                return [
+                                    'id' => $permission->id,
+                                    'name' => $permission->name
+                                ];
+                            }),
+                        ],
                     ]
                 ]
             ], 200);
@@ -208,6 +228,9 @@ class UserController extends Controller
 
     public function importUsers(): \Illuminate\Http\JsonResponse
     {
+
+        $this->checkPermissions();
+
         if (request()->hasFile('file')) {
 
             \request()->validate([
@@ -238,6 +261,9 @@ class UserController extends Controller
 
     public function getImportProgress(): \Illuminate\Http\JsonResponse
     {
+
+        $this->checkPermissions();
+
          $batchId = request()->get('batch_id');
 
          $batch = Bus::findBatch($batchId);
@@ -256,45 +282,50 @@ class UserController extends Controller
         ]);
     }
 
-//    public function importUsers()
-//    {
-//        if (request()->hasFile('file')) {
-//
-//            \request()->validate([
-//                'file' => 'required|file|mimes:csv|max:10240'
-//            ]);
-//
-//            $file = request()->file('file');
-//            $filename = $file->store();
-//
-//            ImportUsersJob::dispatch($filename)->onQueue('import');
-//
-//        } else {
-//
-//            return response()->json([
-//                'status' => 'fail',
-//                'message' => 'Please select a file.',
-//                'data' => null,
-//            ], 422);
-//
-//        }
-//    }
+    public function updateRole($user_id): \Illuminate\Http\JsonResponse
+    {
 
-//    public function importUsersProgress(): \Illuminate\Http\JsonResponse
-//    {
-//        $jobId = session('import_users_job_id');
-//
-//        if (!$jobId) {
-//            return response()->json(['message' => 'No import job running.'], 404);
-//        }
-//
-//        $job = ImportUsersJob::find($jobId);
-//
-//        if (!$job) {
-//            return response()->json(['message' => 'Import job not found.'], 404);
-//        }
-//
-//        return response()->json(['progress' => $job->progress()]);
-//    }
+        $this->checkPermissions();
+
+        $user = User::find($user_id);
+        if($user) {
+
+             $roles = explode(',', request()->input('role_names'));
+
+            if(count($roles) > 0) {
+
+                $user->syncRoles();
+
+                foreach ($roles as $role) {
+                    if(Role::where('name', $role)->first()) {
+
+                        $user->assignRole($role);
+                    }
+                }
+
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'successfully synced user roles.',
+                    'data' => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'unprocessable entity.',
+                'data' => null,
+            ], 422);
+
+        }
+
+        return response()->json([
+            'status' => 'fail',
+            'message' => 'user was not found.',
+            'data' => null,
+        ], 404);
+
+    }
+
 
 }
